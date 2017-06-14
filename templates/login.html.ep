@@ -1,0 +1,16 @@
+% layout 'default';
+% title 'Welcome';
+<h2><%= $msg %></h2>
+Please type your token into the password field.<br>
+<br>
+<form method="POST">
+  <table>
+    <input type=hidden name="redirect_uri" value="<%= $nvp->{'redirect_uri'} %>">
+    <input type=hidden name="response_type" value="token">
+    <input type=hidden name="client_id" value="<%= $nvp->{'client_id'} %>">
+    <input type=hidden name="state" value="<%= $nvp->{'state'} %>">
+    <tr><td>Password</td><td><input type=password name="Password"></td></tr>
+    <tr><td colspan=2 align=center><br>
+        <input type=submit></td></tr>
+  </table>
+</form>

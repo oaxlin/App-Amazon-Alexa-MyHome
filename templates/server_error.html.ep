@@ -1,0 +1,4 @@
+% layout 'default';
+% title 'Welcome';
+<h2><%= $status %></h2>
+<%= $msg %>
