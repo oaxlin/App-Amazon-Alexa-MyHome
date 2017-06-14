@@ -9,7 +9,7 @@ sub auth_alexa_user {
     my $self = shift;
     local $SIG{__WARN__} = sub { $self->alexa_log(@_); };
     my $config = $self->config;
-    my $alexa = Amazon::Alexa::Dispatch->new($config);
+    my $alexa = Net::Amazon::Alexa::Dispatch->new($config);
     my $nvp = $self->req->params->to_hash;
 
     #make debugging with an initial GET a bit easier
@@ -38,7 +38,7 @@ sub auth_alexa {
     my $self = shift;
     local $SIG{__WARN__} = sub { $self->alexa_log(@_); };
     my $config = $self->config;
-    my $alexa = Amazon::Alexa::Dispatch->new($config);
+    my $alexa = Net::Amazon::Alexa::Dispatch->new($config);
     my $json = $self->req->json;
     my $auth = eval { $alexa->alexa_authenticate_json($json); };
     my $e = $@;
@@ -52,7 +52,7 @@ sub run_method { # expects you've previously checked auth_alexa via $r->under
     my $self = shift;
     local $SIG{__WARN__} = sub { $self->alexa_log(@_); };
     my $config = $self->config;
-    my $alexa = Amazon::Alexa::Dispatch->new($config);
+    my $alexa = Net::Amazon::Alexa::Dispatch->new($config);
     my $json = $self->req->json;
     my $ret = eval { $alexa->run_method($json) };
     $self->render(json => $alexa->msg_to_hash($ret,'Unknown response'));
