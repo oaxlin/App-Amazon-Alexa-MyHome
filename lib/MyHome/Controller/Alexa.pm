@@ -1,9 +1,6 @@
 package MyHome::Controller::Alexa;
 use Mojo::Base 'Mojolicious::Controller';
 use Mojo::Util qw(url_escape);
-use lib qw(/home/oaxlin/alexa/lib);
-use lib qw(/home/oaxlin/bravia/lib);
-use lib qw(/home/oaxlin/hue/lib);
 
 sub auth_alexa_user {
     my $self = shift;
@@ -24,7 +21,7 @@ sub auth_alexa_user {
     $self->app->log->warn($@) if $@;
     if (!$token) {
         delete $nvp->{'Password'};
-        $self->render('login',msg=>$alexa->skill_name,nvp=>$nvp,status=>401);
+        $self->render('login',msg=>$alexa->skill_name,nvp=>$nvp,status=>200);
         return undef;
     }
 
@@ -44,7 +41,7 @@ sub auth_alexa {
     my $e = $@;
     return 1 if $auth;
     $e = { error => $e } unless ref $e eq 'Throw'; # put $e into a hash protects it in msg_to_hash
-    $self->render(json => $alexa->msg_to_hash($e,'Not authorized'),status=>401);
+    $self->render(json => $alexa->msg_to_hash($e,'Not authorized'),status=>200);
     return undef;
 }
 
