@@ -54,8 +54,20 @@ sub run_method { # expects you've previously checked auth_alexa via $r->under
     my $config = $self->config;
     my $alexa = Net::Amazon::Alexa::Dispatch->new($config);
     my $json = $self->req->json;
+    my $status = 200;
     my $ret = eval { $alexa->run_method($json) };
-    $self->render(json => $alexa->msg_to_hash($ret,'Unknown response'));
+    my $e = $@;
+    if ($e) {
+        $status = 500;
+        if (ref $e eq 'Throw' && $e->{'alexa_safe'}) {
+            $status = $e->{'status'} if exists $e->{'http_status'} && $e->{'http_status'};
+            $ret = $e;
+        } else {
+            $status = 500;
+            $e = { error => $e };
+        }
+    }
+    $self->render(json => $alexa->msg_to_hash($ret,'Unknown response'),status=>$status);
 }
 
 sub alexa_log {
