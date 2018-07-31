@@ -1,6 +1,5 @@
 package MyHome;
 use Mojo::Base 'Mojolicious';
-use lib ('/home/oaxlin/alexa/lib');
 use Net::Amazon::Alexa::Dispatch;
 
 # This method will run once at server start
