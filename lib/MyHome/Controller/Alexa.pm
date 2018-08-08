@@ -1,6 +1,10 @@
 package MyHome::Controller::Alexa;
 use Mojo::Base 'Mojolicious::Controller';
 use Mojo::Util qw(url_escape);
+use Data::Dumper;
+use lib qw(/home/oaxlin/alexa/lib);
+use lib qw(/home/oaxlin/bravia/lib);
+use lib qw(/home/oaxlin/hue/lib);
 
 sub auth_alexa_user {
     my $self = shift;
@@ -21,7 +25,7 @@ sub auth_alexa_user {
     $self->app->log->warn($@) if $@;
     if (!$token) {
         delete $nvp->{'Password'};
-        $self->render('login',msg=>$alexa->skill_name,nvp=>$nvp,status=>200);
+        $self->render('login',msg=>$alexa->skill_name,nvp=>$nvp,status=>401);
         return undef;
     }
 
@@ -41,30 +45,29 @@ sub auth_alexa {
     my $e = $@;
     return 1 if $auth;
     $e = { error => $e } unless ref $e eq 'Throw'; # put $e into a hash protects it in msg_to_hash
-    $self->render(json => $alexa->msg_to_hash($e,'Not authorized'),status=>200);
+    warn Dumper $e;
+    $self->render(json => $alexa->msg_to_hash($e,'Not authorized'));
     return undef;
 }
 
 sub run_method { # expects you've previously checked auth_alexa via $r->under
     my $self = shift;
     local $SIG{__WARN__} = sub { $self->alexa_log(@_); };
+    warn Dumper $self->req->headers->to_hash;
     my $config = $self->config;
     my $alexa = Net::Amazon::Alexa::Dispatch->new($config);
     my $json = $self->req->json;
-    my $status = 200;
     my $ret = eval { $alexa->run_method($json) };
     my $e = $@;
     if ($e) {
-        $status = 500;
         if (ref $e eq 'Throw' && $e->{'alexa_safe'}) {
-            $status = $e->{'status'} if exists $e->{'http_status'} && $e->{'http_status'};
             $ret = $e;
         } else {
-            $status = 500;
             $e = { error => $e };
         }
+        warn Dumper $e;
     }
-    $self->render(json => $alexa->msg_to_hash($ret,'Unknown response'),status=>$status);
+    $self->render(json => $alexa->msg_to_hash($ret,'Unknown response'));
 }
 
 sub alexa_log {
